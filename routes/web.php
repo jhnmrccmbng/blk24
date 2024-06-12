@@ -16,7 +16,9 @@ use App\Http\Controllers\PaymentController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+
+	$products = App\Product::all();
+    return view('welcome', compact('products'));
 });
 
 Auth::routes(['verify' => true]);

@@ -19,7 +19,7 @@ class CreateStatusesActionsTable extends Migration
             $table->unsignedInteger('sa_status_id');
             $table->unsignedInteger('sa_user_id');
             $table->string('sa_remarks')->nullable();
-            $tanle->string('sa_emailsend')->nullable();
+            $table->string('sa_emailsend')->nullable();
             $table->timestamps();
         });
     }
