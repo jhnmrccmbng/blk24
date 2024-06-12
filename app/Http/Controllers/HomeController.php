@@ -118,6 +118,10 @@ class HomeController extends Controller
                 ],
             ])
             ->options([]);
+            
+        }else{
+
+             $chartjs1 = "";
         }
 
         return view('home', compact('users', 'restaurants', 'carts', 'cartsorders', 'mappedcollection', 'chartjs', 'chartjs1', 'items'));

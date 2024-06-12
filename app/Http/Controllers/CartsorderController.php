@@ -22,6 +22,8 @@ class CartsorderController extends Controller
         if(Auth::user()->can('only-customer-can-access')){
 
              $orders = Cartsorder::whereIn('co_user_id', [Auth::user()->id])->orderBy('id', 'desc')->get();
+
+             $statuses = '';
         
         }else{
 
