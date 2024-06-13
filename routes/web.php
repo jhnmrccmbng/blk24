@@ -61,3 +61,4 @@ Route::get('/view_order/{id}', 'StatusController@show')->name('view_order_status
 Route::resource('/inventory', 'InventoryInController')->middleware('can:only-admin-and-cashier-can-access');
 Route::get('/inventory/edit/{id}', 'InventoryInController@edit')->middleware('can:only-admin-and-cashier-can-access');
 Route::get('/inventory/destroy/{id}', 'InventoryInController@destroy')->middleware('can:only-admin-and-cashier-can-access');
+Route::get('delete_inventoryoutitems/{id}', 'InventoryInController@deleteInventory')->name('delete_inventoryoutitems')->middleware('can:only-admin-and-cashier-can-access');

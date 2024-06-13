@@ -10,6 +10,7 @@
                 {{ session('success') }}
             </div>
             @endif  
+
             <div class="content-header">
                 <div class="container-fluid">
                     <div class="row mb-2">
@@ -67,17 +68,18 @@
                 {{ session('success1') }}
             </div>
             @endif  
+
+            @if (session('success2'))
+              <div class="alert alert-danger" role="alert">
+                {{ session('success2') }}
+            </div>
+            @endif  
+
             <div class="content-header">
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
                             <h3 class="m-0">{{ __('Outgoing Items') }} <span class="fa fa-plus"><a class="btn btn-outline-secondary btn-sm" href="#" data-toggle="modal" data-target="#releaseItem">Release Item</a></span></h3>
-                        </div>
-                        <div class="col-sm-6">
-                            <ol class="breadcrumb float-sm-right">
-                                <li class="breadcrumb-item"><a href="{{url('/home')}}">{{ __('Home') }}</a></li>
-                                <li class="breadcrumb-item active">{{ Auth::user()->role_users->roles->role_name }} Account</li>
-                            </ol>
                         </div>
                     </div>
                 </div>
@@ -86,20 +88,39 @@
             <div class="card-body">
 
                 <section class="content">
-                    <table id="myTableInventory1" class="table table-bordered table-condensed">
+                    <table id="myTableInventory1" class="table table-hover table-condensed">
                         <thead>
                             <tr>
                                 <th>ID no.</th>
-                                <th>Item Name</th>
-                                <th>Category</th>
+                                <th>Item</th>
                                 <th>Quantity</th>
-                               
+                                <th>Remarks</th>
+                                <th>Date Added</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
+                            @foreach($releasedItems as $id => $item)
+                                <tr>
+                                    <td>{{$item->item->inventory_itemID}}</td>
+                                    <td>{{$item->item->inventory_name}}</td>
+                                    <td>{{$item->quantity}}</td>
+                                    <td>{{$item->remarks ?? '---'}}</td>
+                                    <td>{{\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $item->created_at)->format('F j, Y | G:i:A')}}
+                                        <br><span class="small">by: {{$item->user->name}}</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group-vertical">
+
+                                            <a href="{{route('delete_inventoryoutitems', $item->id)}}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to remove {{$item->item->inventory_name}} - {{$item->item->inventory_itemID}} | Quantity: {{$item->quantity}}?')">Remove</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table> 
+
+                        {{$releasedItems->links()}}
                 </section>
                 
             </div>
@@ -366,20 +387,6 @@
               {data: 'expirydate', name: 'expirydate'},
               {data: 'createdat', name: 'createdat'},
               {data: 'status', name: 'status'},
-              {data: 'action', name: 'action'},
-          ], 
-
-      });
-
-      var table = $('#myTableInventory1').DataTable({
-        
-          processing: true,
-          serverSide: true,
-          ajax: "{{ route('inventory.index') }}",
-          columns: [
-              {data: 'itemID', name: 'itemID'},
-              {data: 'name', name: 'name'},
-              {data: 'qty', name: 'qty'},
               {data: 'action', name: 'action'},
           ], 
 

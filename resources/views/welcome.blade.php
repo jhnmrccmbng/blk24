@@ -724,7 +724,7 @@ document.getElementsByTagName('head')[0].appendChild(eventsListenerScript);
             <div class="product_name">
               <a href="#">{{$product->product_name}}</a>
             </div>
-            <div class="product_desc"><p>...</div>
+            <div class="product_desc" title="{{$product->product_slogan}}"><p>{{ \Illuminate\Support\Str::limit($product->product_slogan, 80, $end='...') }}</div>
 
               <div class="product_links">
         <!-- 

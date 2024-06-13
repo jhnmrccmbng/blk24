@@ -124,7 +124,7 @@ class PaymentController extends Controller
                 'gcash', 'card'
               ],
               'success_url' => route('paymentsuccess', ['serviceID' => $request->orderservicetype, 'paymentID' => $request->orderpaymenttype, 'restoID' => $request->resto_id, 'totalorder' => $request->totalorder, 'remarks' => $request->remarks ?? '---']),
-              'cancel_url' => 'http://localhost:8000',
+              'cancel_url' => url('/home'),
               'description' => 'BLK24 Cafe - '.Auth::user()->name,
             ],
           ]

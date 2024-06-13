@@ -15,4 +15,8 @@ class InventoryIn extends Model
     public function statusInventory(){
     	return $this->belongsTo(Status::class, 'inventory_statusID');
     }
+
+    public function releasedItems(){
+    	return $this->hasMany(Inventory_out::class, 'inventory_id');
+    }
 }

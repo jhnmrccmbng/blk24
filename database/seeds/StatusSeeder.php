@@ -52,7 +52,6 @@ class StatusSeeder extends Seeder
         	'status_description' => '---', 
         ]);
 
-
         $st9 = Status::create([
         	'status_name' => 'Declined',
         	'status_description' => '---', 
@@ -60,6 +59,16 @@ class StatusSeeder extends Seeder
 
         $st10 = Status::create([
             'status_name' => 'Done',
+            'status_description' => '---', 
+        ]);
+
+        $st11 = Status::create([
+            'status_name' => 'Active',
+            'status_description' => '---', 
+        ]);
+
+        $st12 = Status::create([
+            'status_name' => 'Inactive',
             'status_description' => '---', 
         ]);
 

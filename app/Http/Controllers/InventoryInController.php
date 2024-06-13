@@ -18,16 +18,19 @@ class InventoryInController extends Controller
     public function index()
     {   
         $categories = \App\Inventory_category::pluck('inv_categoryname', 'id');
+        
         $items = \App\InventoryIn::whereIn('inventory_statusID', [11])->select('id', 'inventory_name', 'inventory_itemID')->get()->toArray();
-            
+        
+        $releasedItems = \App\Inventory_out::latest()->simplePaginate(15);
+
         if(\request()->ajax()){
-            $data = InventoryIn::with(['categoryInventory', 'statusInventory'])->latest()->get();
+            $data = InventoryIn::with(['categoryInventory', 'statusInventory', 'releasedItems'])->latest()->get();
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function($row){
                     $actionBtn = '
                     <div class="btn-group" role="group" aria-label="Basic example">
-                      <a href="'.url('/inventory/edit/'.encrypt($row->id)).'" class="btn btn-success">Edit</a>
+                      <a href="'.url('/inventory/edit/'.encrypt($row->id)).'" class="btn-sm btn btn-success">Edit</a>
                     </div>';
                     return $actionBtn;
                 })
@@ -44,8 +47,21 @@ class InventoryInController extends Controller
                     return $category;
                 })
                 ->addColumn('qty', function($row){
+                    
                     $qty = $row['inventory_quantity'];
-                    return $qty;
+                    
+                    $releasedItems = $row['releasedItems'];
+
+                    $mapItems = $releasedItems->map(function($item){
+                        return [
+                            'id' => $item->id,
+                            'qty' => $item->quantity, 
+                        ];
+                    })->sum('qty');
+
+                    $sign = $mapItems >= $qty ? 'out of stock' : '';
+
+                    return $mapItems.'/'.$qty.'<br><i class="badge badge-danger">'.$sign.'</i>';
                 })
                 ->addColumn('price', function($row){
                     $price = $row['inventory_unitprice'];
@@ -77,7 +93,7 @@ class InventoryInController extends Controller
                 ->make(true);
         }
 
-        return view('inventory.index', compact('categories', 'items'));
+        return view('inventory.index', compact('categories', 'items', 'releasedItems'));
     }
 
     /**
@@ -86,15 +102,40 @@ class InventoryInController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create(Request $request)
-    {
-        $createItem = \App\Inventory_out::create([
+    {   
+        $items = InventoryIn::with(['releasedItems'])->find($request->itemid);
+        
+        $map = $items->releasedItems->map(function($item){
+
+            return [
+                'id' => $item->id, 
+                'qty' => $item->quantity,
+            ];
+
+        })->sum('qty');
+
+        $subtract = $items->inventory_quantity - $map;
+
+        if($map == $items->inventory_quantity){
+
+             return redirect()->back()->withSuccess2('Item is out of stock');
+        
+        }elseif($request->itemqty > $subtract){
+
+            return redirect()->back()->withSuccess2('Add Failed. Only '.$subtract.' item left in the storage for '.$items->inventory_name.'('.$items->inventory_itemID.')');
+
+        }else{
+
+             $createItem = \App\Inventory_out::create([
                 'inventory_id' => $request->itemid,
                 'quantity' => $request->itemqty,
                 'remarks' => $request->remarks,
                 'user_id' => Auth::user()->id,
-        ]);
+            ]);
         
-        return redirect()->back()->withSuccess1('Item Successfully Added to Outgoing Items!');
+            return redirect()->back()->withSuccess1('Item successfully added to outgoing items!');
+        }
+
     }
 
     /**
@@ -185,8 +226,25 @@ class InventoryInController extends Controller
     public function destroy($inventoryIn)
     {
         $item = InventoryIn::find($inventoryIn);
+
+        if($item->releasedItems->count() == 0){
+            
+            $item->delete();
+
+            return redirect()->route('inventory.index')->withSuccess('Item Successfully Deleted!');
+
+        }else{
+
+             return redirect()->route('inventory.index')->withSuccess('Item cannot be deleted due to plotted items below. Thank you.');
+        }
+
+    }
+
+    public function deleteInventory($id){
+
+        $item = \App\Inventory_out::find($id);
         $item->delete();
 
-        return redirect()->route('inventory.index')->withSuccess('Item Successfully Deleted!');
+        return redirect()->route('inventory.index')->withSuccess2('Item Successfully Deleted!');
     }
 }

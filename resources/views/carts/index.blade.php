@@ -176,7 +176,7 @@
 										<div class="mt-5 mt-lg-0">
 											<div class="card border shadow-none">
 												<div class="card-header bg-transparent border-bottom py-3 px-4">
-													<h5 class="font-size-16 mb-0">---Order Summary <span class="float-end">@ Branch Name:  {{$carts->first()->products->restaurants->restaurant_name ?? ''}}---</span></h5>
+													<h5 class="font-size-16 mb-0">---Order Summary <span class="float-end">@  {{$carts->first()->products->restaurants->restaurant_name ?? ''}}---</span></h5>
 												</div>
 												<div class="card-body p-4 pt-2">
 
